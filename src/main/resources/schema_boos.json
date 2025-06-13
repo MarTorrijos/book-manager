@@ -1,0 +1,57 @@
+{
+  "$jsonSchema": {
+    "bsonType": "object",
+    "required": [
+      "_id",
+      "title",
+      "author",
+      "publishedIn",
+      "genres",
+      "pages",
+      "status",
+      "rating",
+      "review"
+    ],
+    "properties": {
+      "_id": {
+        "bsonType": "objectId"
+      },
+      "title": {
+        "bsonType": "string"
+      },
+      "author": {
+        "bsonType": "string"
+      },
+      "publishedIn": {
+        "bsonType": "int"
+      },
+      "genres": {
+        "bsonType": "array",
+        "items": {
+          "bsonType": "string"
+        }
+      },
+      "pages": {
+        "bsonType": "int"
+      },
+      "status": {
+        "bsonType": "bool"
+      },
+      "readIn": {
+        "bsonType": "int"
+      },
+      "rating": {
+        "bsonType": "double"
+      },
+      "review": {
+        "bsonType": "string"
+      },
+      "tags": {
+        "bsonType": "array",
+        "items": {
+          "bsonType": "string"
+        }
+      }
+    }
+  }
+}
