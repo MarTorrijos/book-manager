@@ -74,7 +74,7 @@ public class BookController {
     }
 
     @DeleteMapping("/delete")
-    public ResponseEntity<Void> deleteBook(@RequestParam(value = "id", required = false) ObjectId id,
+    public ResponseEntity<Void> deleteBookByIdOrTitle(@RequestParam(value = "id", required = false) ObjectId id,
                                            @RequestParam(value = "title", required = false) String title) {
         try {
             if (id != null) {
