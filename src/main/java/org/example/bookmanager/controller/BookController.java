@@ -1,5 +1,9 @@
 package org.example.bookmanager.controller;
 
+import org.bson.types.ObjectId;
+import org.example.bookmanager.exceptions.AuthorNotFound;
+import org.example.bookmanager.exceptions.BookNotAddedException;
+import org.example.bookmanager.exceptions.BookNotFoundException;
 import org.example.bookmanager.model.Book;
 import org.example.bookmanager.service.BookService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,28 +22,74 @@ public class BookController {
 
     @PostMapping("/add")
     public ResponseEntity<Book> addBook(@RequestBody Book book) {
-        Book addedBook = bookService.addBook(book);
-        return ResponseEntity.status(HttpStatus.CREATED).body(addedBook);
+        try {
+            Book addedBook = bookService.addBook(book);
+            return ResponseEntity.status(HttpStatus.CREATED).body(addedBook);
+        } catch (BookNotAddedException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
     }
 
-    @GetMapping("/name")
-    public ResponseEntity<Book> getBookByName(@RequestParam String name) {
-        Book book = bookService.getBookByName(name);
-        return book == null
-                ? ResponseEntity.noContent().build()
-                : ResponseEntity.ok(book);
+    @GetMapping("/get/{title}")
+    public ResponseEntity<Book> getBookByTitle(@PathVariable String title) {
+        try {
+            Book book = bookService.getBookByTitle(title);
+            return ResponseEntity.ok(book);
+        } catch (BookNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
     }
 
-    // getBookById
+    @GetMapping("/get/{id}")
+    public ResponseEntity<Book> getBookById(@PathVariable ObjectId id) {
+        try {
+            Book book = bookService.getBookById(id);
+            return ResponseEntity.ok(book);
+        } catch (BookNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+    }
 
     @GetMapping("/author/{author}")
-    public List<Book> getBooksByAuthor(@PathVariable String author) {
-        return bookService.getBooksByAuthor(author);
+    public ResponseEntity<List<Book>> getBooksByAuthor(@PathVariable String author) {
+        try {
+            List<Book> books = bookService.getBooksByAuthor(author);
+            return ResponseEntity.ok(books);
+        } catch (AuthorNotFound e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
     }
 
-    // updateBook
+    @PutMapping("/update/{id}")
+    public ResponseEntity<Book> updateBook(@PathVariable ObjectId id, @RequestBody Book book) {
+        try {
+            book.setId(id);
+            Book updatedBook = bookService.updateBook(book);
+            return ResponseEntity.ok(updatedBook);
+        } catch (BookNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+    }
 
-
-    // deleteBook
+    @DeleteMapping("/delete")
+    public ResponseEntity<Void> deleteBook(@RequestParam(value = "id", required = false) ObjectId id,
+                                           @RequestParam(value = "title", required = false) String title) {
+        try {
+            if (id != null) {
+                bookService.deleteBookById(id);
+            } else if (title != null && !title.trim().isEmpty()) {
+                bookService.deleteBookByTitle(title);
+            } else {
+                return ResponseEntity.badRequest().build();
+            }
+            return ResponseEntity.noContent().build();
+        } catch (BookNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 
 }

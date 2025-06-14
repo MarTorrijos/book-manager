@@ -40,4 +40,9 @@ public class Book {
         this.tags = tags;
     }
 
+    // Lombok is not creating this getter for some reason
+    public boolean getStatus() {
+        return status;
+    }
+
 }

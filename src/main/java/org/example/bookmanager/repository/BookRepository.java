@@ -9,8 +9,8 @@ import java.util.List;
 
 public interface BookRepository extends CrudRepository<Book, ObjectId> {
 
-    @Query("{ 'name': { $regex: ?0, $options: 'i' } }")
-    Book findByName(String name);
+    @Query("{ 'title': { $regex: ?0, $options: 'i' } }")
+    Book findByTitle(String title);
 
     @Query("{ 'author': { $regex: ?0, $options: 'i' } }")
     List<Book> findByAuthor(String author);
