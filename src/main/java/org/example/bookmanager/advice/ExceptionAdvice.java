@@ -6,14 +6,14 @@
     import org.example.bookmanager.exceptions.InvalidBookException;
     import org.springframework.http.HttpStatus;
     import org.springframework.http.ResponseEntity;
+    import org.springframework.web.bind.annotation.ControllerAdvice;
     import org.springframework.web.bind.annotation.ExceptionHandler;
 
     import java.time.LocalDateTime;
     import java.util.HashMap;
     import java.util.Map;
 
-    // REVISAR este tag tan raro
-    @org.springframework.web.bind.annotation.ControllerAdvice
+    @ControllerAdvice
     public class ExceptionAdvice {
 
         private ResponseEntity<Object> createErrorResponse(Exception e, HttpStatus status, String errorType) {
