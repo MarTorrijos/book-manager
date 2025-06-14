@@ -6,21 +6,28 @@ import org.example.bookmanager.exceptions.BookNotFoundException;
 import org.example.bookmanager.exceptions.InvalidBookException;
 import org.example.bookmanager.model.Book;
 import org.example.bookmanager.repository.BookRepository;
+import org.example.bookmanager.validators.BookValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.Year;
 import java.util.List;
 import java.util.function.Consumer;
 
 @Service
 public class BookService {
 
-    @Autowired
     private BookRepository bookRepository;
+    private List<BookValidator> validators;
+
+    @Autowired
+    public BookService(BookRepository bookRepository, List<BookValidator> validators) {
+        this.bookRepository = bookRepository;
+        this.validators = validators;
+    }
 
     public Book addBook(Book book) {
-        validateBook(book);
+
+        validators.forEach(validator -> validator.validate(book));
 
         Book existingBook = bookRepository.findByTitle(book.getTitle());
         if (existingBook != null) {
@@ -85,56 +92,9 @@ public class BookService {
         bookRepository.delete(existingBook);
     }
 
-
     private <T> void updateField(T newValue, Consumer<T> updateMethod) {
         if (newValue != null) {
             updateMethod.accept(newValue);
-        }
-    }
-
-    private void validateBook(Book book) {
-        int currentYear = Year.now().getValue();
-
-        if (book.getTitle() == null || book.getTitle().trim().isEmpty()) {
-            throw new InvalidBookException("Book title can't be empty");
-        }
-        if (book.getTitle().length() > 200) {
-            throw new InvalidBookException("Book title can't exceed 200 characters");
-        }
-
-        if (book.getAuthor() == null || book.getAuthor().isEmpty()) {
-            throw new InvalidBookException("Author can't be empty");
-        }
-        if (book.getAuthor().length() > 200) {
-            throw new InvalidBookException("Author can't exceed 200 characters");
-        }
-
-        if (book.getPublishedIn() != null && (book.getPublishedIn() < 0 || book.getPublishedIn() > currentYear)) {
-            throw new InvalidBookException("Published year must be a valid year (between 0 and " + currentYear + ")");
-        }
-
-        if (book.getGenres() == null || book.getGenres().isEmpty()) {
-            throw new InvalidBookException("Genres can't be empty");
-        }
-
-        if (book.getPages() == null || book.getPages() <= 0) {
-            throw new InvalidBookException("Pages must be a positive number");
-        }
-
-        if (book.getReadIn() != null && (book.getReadIn() < 0 || book.getReadIn() > currentYear)) {
-            throw new InvalidBookException("Read-in year must be a valid year (between 0 and " + currentYear + ")");
-        }
-
-        if (book.getRating() != null && (book.getRating() < 0 || book.getRating() > 5)) {
-            throw new InvalidBookException("Rating must be between 0 and 5");
-        }
-
-        if (book.getReview() != null && book.getReview().length() > 1000) {
-            throw new InvalidBookException("Review can't exceed 1000 characters");
-        }
-
-        if (book.getTags() != null && book.getTags().size() > 20) {
-            throw new InvalidBookException("A book can have a maximum of 20 tags");
         }
     }
 
